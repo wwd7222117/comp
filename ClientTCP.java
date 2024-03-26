@@ -32,11 +32,20 @@ class ClientTCP {
 
 				// Prepare the request data
 				byte[] requestData = prepareRequest(scanner, requestCount);
+				long startTime = System.currentTimeMillis();  // Get the current time before sending the request
+
 				// Send the request data to the server
 				outputToServer.writeInt(requestData.length); // Send the length of the request data first
 				sendRequest(outputToServer, requestData);
+
 				// Handle the response from the server
 				handleResponse(inputFromServer);
+
+				long endTime = System.currentTimeMillis();  // Get the current time after receiving the response
+
+				// Calculate and print the return time
+				long returnTime = endTime - startTime;
+				System.out.println("Return Time: " + returnTime + " ms");
 			}
 
 			System.out.println("Enter OpCode, Operand1, Operand2 or Q to exit:");

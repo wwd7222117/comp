@@ -15,16 +15,16 @@ class ClientTCP {
 		String serverName = args[0];
 		int serverPort = Integer.parseInt(args[1]);
 
-		System.out.println("Client started");
 		Scanner scanner = new Scanner(System.in);
 		int requestCount = 1;
-		System.out.println("Enter OpCode, Operand1, Operand2 or Q to exit:");
+		System.out.println("Enter N to exit");
+		System.out.println("Enter OpCode, Operand1 and Operand2:");
 		while (scanner.hasNext()) {
 			if (scanner.hasNext(EXIT_COMMAND)) {
 				scanner.next();
 				break;
 			}
-			// Create a socket and connect to the server
+			// Connect to the server
 			try (Socket clientSocket = new Socket(serverName, serverPort)) {
 				// Create input and output streams
 				DataInputStream inputFromServer = new DataInputStream(clientSocket.getInputStream());
@@ -32,10 +32,10 @@ class ClientTCP {
 
 				// Prepare the request data
 				byte[] requestData = prepareRequest(scanner, requestCount);
-				long startTime = System.currentTimeMillis();  // Get the current time before sending the request
+				long startTime = System.currentTimeMillis();
 
 				// Send the request data to the server
-				outputToServer.writeInt(requestData.length); // Send the length of the request data first
+				outputToServer.writeInt(requestData.length);
 				sendRequest(outputToServer, requestData);
 
 				// Handle the response from the server
@@ -48,7 +48,8 @@ class ClientTCP {
 				System.out.println("Return Time: " + returnTime + " ms");
 			}
 
-			System.out.println("Enter OpCode, Operand1, Operand2 or Q to exit:");
+			System.out.println("Enter OpCode, Operand1 and Operand2");
+			System.out.println("Enter N to exit");
 			requestCount++;
 		}
 	}
@@ -78,20 +79,19 @@ class ClientTCP {
 	}
 
 	private static String getOperationName(int opCode) {
-		// Return the operation name based on the operation code
 		switch (opCode) {
-			case 0: return "multiplication";
-			case 1: return "division";
-			case 2: return "or";
-			case 3: return "and";
-			case 4: return "subtraction";
-			case 5: return "addition";
+			case 0: return "MUL";
+			case 1: return "DIV";
+			case 2: return "OR";
+			case 3: return "AND";
+			case 4: return "SUB";
+			case 5: return "ADD";
 			default: return "";
 		}
 	}
 
 	private static void sendRequest(DataOutputStream outputToServer, byte[] requestData) throws Exception {
-		System.out.println("Request in HEX: " + bytesToHex(requestData));
+		System.out.println("Request[HEX]: " + bytesToHex(requestData));
 		outputToServer.write(requestData);
 	}
 
@@ -108,14 +108,13 @@ class ClientTCP {
 		short responseRequestId = wrapped.getShort();
 
 		// Print the response
-		System.out.println("Response in HEX: " + bytesToHex(receiveData));
+		System.out.println("Response[HEX]: " + bytesToHex(receiveData));
+		System.out.println("Error Code: " + (errorCode == 0 ? "Ok" : errorCode));
 		System.out.println("Request ID: " + responseRequestId);
 		System.out.println("Result: " + result);
-		System.out.println("Error Code: " + (errorCode == 0 ? "Ok" : errorCode));
 	}
 
 	private static String bytesToHex(byte[] bytes) {
-		// Convert byte array to hex string
 		StringBuilder sb = new StringBuilder();
 		for (byte b : bytes) {
 			sb.append(String.format("%02X ", b));
